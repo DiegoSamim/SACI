@@ -5,8 +5,15 @@ import {
     Image,
     TouchableOpacity
 } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"
+import { RootStackParamList } from "../../types/navigation"
+
+type MenuNavigationProp = NativeStackNavigationProp<RootStackParamList, "Menu">
 
 export default function Menu() {
+    const navigation = useNavigation<MenuNavigationProp>()
+
     return (
         <View className="flex-1 items-center justify-center">
 
@@ -25,6 +32,7 @@ export default function Menu() {
             {/* Botão */}
             <TouchableOpacity
                 className="bg-black px-10 py-4 rounded-lg"
+                onPress={() => navigation.navigate("MainTabs")}
             >
                 <Text className="text-white text-lg font-bold">
                     Iniciar Jornada
