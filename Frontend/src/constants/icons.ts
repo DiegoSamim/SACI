@@ -12,6 +12,10 @@ export const ICONS = {
     seta: require("../assets/icons/Seta.png"),
     vela: require("../assets/icons/Vela.png"),
     cadeado: require("../assets/icons/Cadeado.png"),
+    nuvem: require("../assets/icons/Nuvem.png"),
+    nuvemPreenchida: require("../assets/icons/NuvemPreenchida.png"),
+    lua: require("../assets/icons/Lua.png"),
+    sol: require("../assets/icons/Sol.png"),
 
 } as const
 
@@ -29,6 +33,9 @@ export const ICONS_DARK = {
     seta: require("../assets/icons/SetaDark.png"),
     vela: require("../assets/icons/VelaDark.png"),
     cadeado: require("../assets/icons/CadeadoDark.png"),
+    nuvem: require("../assets/icons/NuvemDark.png"),
+    lua: require("../assets/icons/LuaDark.png"),
+    sol: require("../assets/icons/SolDark.png"),
 } as const
 
 export type Icons = typeof ICONS

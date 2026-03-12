@@ -27,6 +27,7 @@ import { LinearGradient } from "expo-linear-gradient"
 import * as Haptics from "expo-haptics"
 import { RootStackParamList } from "../../types/navigation"
 import ScreenVignette from "../../components/ScreenVignette"
+import MapCloudLayer from "../../components/MapCloudLayer"
 import { APP_COLORS } from "../../constants/colors"
 import { TYPOGRAPHY } from "../../constants/typography"
 
@@ -460,6 +461,9 @@ export default function Map() {
 
                     {/* Shimmer de entrada — roda 1 vez */}
                     <MapShimmer width={mapWidth} height={mapHeight} />
+
+                    {/* Nuvens em camadas acima do mapa */}
+                    <MapCloudLayer width={mapWidth} height={mapHeight} />
 
                     {regions.map((region, index) => (
                         <RegionPin
