@@ -11,6 +11,7 @@ export const ICONS = {
     pegadaMula: require("../assets/icons/PegadaMula.png"),
     seta: require("../assets/icons/Seta.png"),
     vela: require("../assets/icons/Vela.png"),
+    cadeado: require("../assets/icons/Cadeado.png"),
 
 } as const
 
@@ -27,6 +28,7 @@ export const ICONS_DARK = {
     pegadaMula: require("../assets/icons/PegadaMulaDark.png"),
     seta: require("../assets/icons/SetaDark.png"),
     vela: require("../assets/icons/VelaDark.png"),
+    cadeado: require("../assets/icons/CadeadoDark.png"),
 } as const
 
 export type Icons = typeof ICONS
