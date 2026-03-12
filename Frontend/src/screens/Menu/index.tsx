@@ -3,11 +3,16 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity
+    TouchableOpacity,
+    StatusBar,
 } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../../types/navigation"
+import { SafeAreaView } from "react-native-safe-area-context"
+import ScreenVignette from "../../components/ScreenVignette"
+import { APP_COLORS } from "../../constants/colors"
+import { TYPOGRAPHY } from "../../constants/typography"
 
 type MenuNavigationProp = NativeStackNavigationProp<RootStackParamList, "Menu">
 
@@ -15,30 +20,54 @@ export default function Menu() {
     const navigation = useNavigation<MenuNavigationProp>()
 
     return (
-        <View className="flex-1 items-center justify-center">
+        <SafeAreaView style={{ flex: 1, backgroundColor: APP_COLORS.background.base }}>
+            <StatusBar backgroundColor={APP_COLORS.background.base} barStyle="dark-content" />
+            <ScreenVignette />
 
-            {/* Logo */}
-            <Image
-                source={require("../../assets/Saci.png")}
-                className="w-72 h-72"
-                resizeMode="contain"
-            />
+            <View className="flex-1 items-center justify-center">
 
-            {/* Título */}
-            <Text className="text-4xl font-bold text-black mb-10">
-                SACI
-            </Text>
+                {/* Logo */}
+                <Image
+                    source={require("../../assets/Saci.png")}
+                    className="w-72 h-72"
+                    resizeMode="contain"
+                />
 
-            {/* Botão */}
-            <TouchableOpacity
-                className="bg-black px-10 py-4 rounded-lg"
-                onPress={() => navigation.navigate("MainTabs")}
-            >
-                <Text className="text-white text-lg font-bold">
-                    Iniciar Jornada
+                {/* Título */}
+                <Text
+                    style={{
+                        marginBottom: 40,
+                        fontSize: TYPOGRAPHY.fontSize.display,
+                        fontWeight: TYPOGRAPHY.fontWeight.bold,
+                        fontFamily: TYPOGRAPHY.fontFamily.serif,
+                        color: APP_COLORS.text.primary,
+                    }}
+                >
+                    SACI
                 </Text>
-            </TouchableOpacity>
 
-        </View>
+                {/* Botão */}
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: APP_COLORS.buttons.primary,
+                        paddingHorizontal: 40,
+                        paddingVertical: 16,
+                        borderRadius: 12,
+                    }}
+                    onPress={() => navigation.navigate("MainTabs")}
+                >
+                    <Text
+                        style={{
+                            color: APP_COLORS.buttons.text,
+                            fontSize: TYPOGRAPHY.fontSize.lg,
+                            fontWeight: TYPOGRAPHY.fontWeight.bold,
+                        }}
+                    >
+                        Iniciar Jornada
+                    </Text>
+                </TouchableOpacity>
+
+            </View>
+        </SafeAreaView>
     )
 }

@@ -2,7 +2,12 @@ export type RootStackParamList = {
   Splash: undefined;
   Menu: undefined;
   MainTabs: undefined;
-  Scenario: undefined;
+  Scenario:
+    | {
+        regionName: string;
+        scenarioName: string;
+      }
+    | undefined;
   Battle: undefined;
   Inventory: undefined;
 };

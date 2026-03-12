@@ -1,8 +1,12 @@
 import React, { useEffect } from "react"
-import { View, Text } from "react-native"
+import { View, Text, StatusBar } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
 import { RootStackParamList } from "../../types/navigation"
+import { SafeAreaView } from "react-native-safe-area-context"
+import ScreenVignette from "../../components/ScreenVignette"
+import { APP_COLORS } from "../../constants/colors"
+import { TYPOGRAPHY } from "../../constants/typography"
 
 type SplashNavigationProp = NativeStackNavigationProp<RootStackParamList, "Splash">
 
@@ -18,8 +22,22 @@ export default function Splash() {
     }, [navigation])
 
     return (
-        <View className="flex-1 bg-black items-center justify-center">
-            <Text className="text-white text-4xl">SACI 🌪️</Text>
-        </View>
+        <SafeAreaView style={{ flex: 1, backgroundColor: APP_COLORS.background.base }}>
+            <StatusBar backgroundColor={APP_COLORS.background.base} barStyle="dark-content" />
+            <ScreenVignette />
+
+            <View className="flex-1 items-center justify-center">
+                <Text
+                    style={{
+                        fontSize: TYPOGRAPHY.fontSize.display,
+                        fontFamily: TYPOGRAPHY.fontFamily.serif,
+                        fontWeight: TYPOGRAPHY.fontWeight.bold,
+                        color: APP_COLORS.text.primary,
+                    }}
+                >
+                    SACI
+                </Text>
+            </View>
+        </SafeAreaView>
     )
 }

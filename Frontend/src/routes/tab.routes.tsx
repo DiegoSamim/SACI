@@ -1,12 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { MaterialIcons } from '@expo/vector-icons'
-import { View } from 'react-native'
+import { View, Image } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { APP_COLORS } from '../constants/colors'
 
 import Map from '../screens/Map'
 import Catalog from '../screens/Catalog'
 
 import { MainTabParamList } from '../types/navigation'
+import { ICONS, ICONS_DARK } from '@/constants/icons'
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
 
@@ -21,15 +22,15 @@ export default function TabRoutes() {
                 headerShown: false,
 
                 tabBarStyle: {
-                    backgroundColor: '#1f2937',
+                    backgroundColor: APP_COLORS.background.tabBar,
                     height: 56,
                     paddingTop: 6,
                     paddingBottom: insets.bottom,
                 },
 
                 tabBarShowLabel: false,
-                tabBarActiveTintColor: '#ffffff',
-                tabBarInactiveTintColor: '#d1d5db',
+                tabBarActiveTintColor: APP_COLORS.background.tabBar,
+                tabBarInactiveTintColor: APP_COLORS.background.baseSoft,
 
                 animation: "shift",
             }}
@@ -44,7 +45,7 @@ export default function TabRoutes() {
                             style={
                                 focused
                                     ? {
-                                        backgroundColor: '#374151',
+                                        backgroundColor: APP_COLORS.background.baseSoft,
                                         width: size * 1.7,
                                         height: size * 1.7,
                                         borderRadius: (size * 1.7) / 2,
@@ -54,7 +55,14 @@ export default function TabRoutes() {
                                     : undefined
                             }
                         >
-                            <MaterialIcons name="map" size={size} color={color} />
+                            <Image
+                                source={focused ? ICONS.mapa : ICONS_DARK.mapa}
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                }}
+                                resizeMode="contain"
+                            />
                         </View>
                     ),
                 }}
@@ -69,7 +77,7 @@ export default function TabRoutes() {
                             style={
                                 focused
                                     ? {
-                                        backgroundColor: '#374151',
+                                        backgroundColor: APP_COLORS.background.baseSoft,
                                         width: size * 1.7,
                                         height: size * 1.7,
                                         borderRadius: (size * 1.7) / 2,
@@ -79,7 +87,14 @@ export default function TabRoutes() {
                                     : undefined
                             }
                         >
-                            <MaterialIcons name="menu-book" size={size} color={color} />
+                            <Image
+                                source={focused ? ICONS.livro : ICONS_DARK.livro}
+                                style={{
+                                    width: 32,
+                                    height: 32,
+                                }}
+                                resizeMode="contain"
+                            />
                         </View>
                     ),
                 }}
