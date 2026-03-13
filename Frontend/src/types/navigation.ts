@@ -1,13 +1,13 @@
 export type RootStackParamList = {
   Splash: undefined;
-  Menu: undefined;
+  Menu: { fromSplash?: boolean }  // ← adicione isso
   MainTabs: undefined;
   Scenario:
-    | {
-        regionName: string;
-        scenarioName: string;
-      }
-    | undefined;
+  | {
+    regionName: string;
+    scenarioName: string;
+  }
+  | undefined;
   Battle: undefined;
   Inventory: undefined;
 };

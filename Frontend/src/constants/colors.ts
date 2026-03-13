@@ -1,30 +1,45 @@
 export const APP_COLORS = {
     background: {
-        base: "#F3E6C9",       // papel claro
-        baseSoft: "#E8D8B0",   // variação
-        baseDark: "#D7C39A",   // papel envelhecido
-        tabBar: "#1E1812",        // fundo das abas
-        vignetteStrong: "rgba(58,41,24,0.50)",
-        vignetteSoft: "rgba(58,41,24,0.30)",
+        base: "#EDE1C4",        // papel de cordel levemente mais quente
+        baseSoft: "#E2D4B0",    // variação envelhecida
+        baseDark: "#CFC09A",    // papel bem envelhecido
+        tabBar: "#120D07",      // preto quase tinta de xilogravura
+        vignetteStrong: "rgba(42,28,14,0.55)",
+        vignetteSoft: "rgba(42,28,14,0.28)",
     },
     text: {
-        primary: "#2B1E12",     // tinta principal
-        secondary: "#5B4631",
-        muted: "#7B6246",
-        onDark: "#F7F1DE",
+        primary: "#1A0F06",     // tinta de xilogravura — quase preto marrom
+        secondary: "#4A3520",
+        muted: "#7A5C38",
+        onDark: "#EDE1C4",      // papel no fundo escuro
     },
     buttons: {
-        primary: "#2B3A3F",
-        secondary: "#3E4C50",
-        battle: "#A3362A",
-        inventory: "#3A5F7D",
-        text: "#FFFFFF",
+        // Primário: bloco preto de cordel — exatamente como na imagem
+        primary: "#1A0F06",
+        primaryText: "#EDE1C4",
+
+        // Secundário: marrom escuro de couro
+        secondary: "#3D2210",
+        secondaryText: "#EDE1C4",
+
+        // Batalha: vermelho de cordel — vivo, quente, xilogravura
+        battle: "#B5311F",
+        battleText: "#EDE1C4",
+
+        // Inventário: azul esverdeado desbotado de tinta velha
+        inventory: "#2E4A3E",
+        inventoryText: "#EDE1C4",
+
+        // Texto genérico legado (compatibilidade)
+        text: "#EDE1C4",
+
+        // Pinos do mapa — tons de tinta regional
         pin: {
-            norte: "#5F7A4A",
-            nordeste: "#9A6A32",
-            centroOeste: "#7D6B3E",
-            sudeste: "#8B4A3D",
-            sul: "#4E6773",
+            norte: "#4A6B35",       // verde mata fechada
+            nordeste: "#8B5A1E",    // ocre seco do sertão
+            centroOeste: "#6B5828", // terra dourada do cerrado
+            sudeste: "#7A3828",     // terracota colonial
+            sul: "#385868",         // azul frio das araucárias
         },
     },
 } as const

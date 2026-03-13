@@ -1,7 +1,12 @@
+import { FONT_FAMILY } from "./fonts"
+
 export const TYPOGRAPHY = {
     fontFamily: {
-        serif: "serif",
-        sans: "System",
+        serif: FONT_FAMILY.systemSerif,
+        sans: FONT_FAMILY.systemSans,
+        cordelRegular: FONT_FAMILY.cordelRustikaRegular,
+        cordelItalic: FONT_FAMILY.cordelRustikaItalic,
+        xilosa: FONT_FAMILY.xilosa,
     },
     fontSize: {
         xs: 10,
