@@ -15,6 +15,7 @@ import ScreenVignette from "../../components/ScreenVignette"
 import { APP_COLORS } from "../../constants/colors"
 import { TYPOGRAPHY } from "../../constants/typography"
 import Animated, {
+    type SharedValue,
     useSharedValue,
     useAnimatedStyle,
     withTiming,
@@ -29,18 +30,6 @@ type MenuNavigationProp = NativeStackNavigationProp<RootStackParamList, "Menu">
 type MenuRouteProp = RouteProp<RootStackParamList, "Menu">
 
 // ─── Ornamento de linha com estrela ──────────────────────────────────────────
-function OrnamentRow({ opacity }: { opacity: Animated.SharedValue<number> }) {
-    const style = useAnimatedStyle(() => ({ opacity: opacity.value }))
-    return (
-        <Animated.View style={[styles.ornamentRow, style]}>
-            <View style={styles.ornamentLine} />
-            <Text style={styles.ornamentDiamond}>◆</Text>
-            <View style={styles.ornamentLine} />
-            <Text style={styles.ornamentDiamond}>◆</Text>
-            <View style={styles.ornamentLine} />
-        </Animated.View>
-    )
-}
 
 export default function Menu() {
     const navigation = useNavigation<MenuNavigationProp>()

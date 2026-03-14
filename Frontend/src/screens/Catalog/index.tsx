@@ -27,6 +27,7 @@ import { APP_COLORS } from "../../constants/colors"
 import { TYPOGRAPHY } from "../../constants/typography"
 import { FOLKLORE_CREATURES } from "../../data/folkloreCreatures"
 import CreatureCard from "@/components/creatureCards"
+import { ICONS } from "@/constants/icons"
 
 const { height } = Dimensions.get("window")
 
@@ -293,7 +294,12 @@ function CreatureDetailModal({
                     onPress={closeWithAnimation}
                     style={[styles.closeButton, { borderColor: `${accent}44` }]}
                 >
-                    <Text style={[styles.closeText, { color: accent }]}>← Fechar</Text>
+                    <Image
+                        source={ICONS.seta}
+                        style={{ width: 26, height: 26 }}
+                        resizeMode="contain"
+                    />
+                    <Text style={[styles.closeText]}>Fechar</Text>
                 </TouchableOpacity>
             </Animated.View>
         </Modal>
@@ -422,14 +428,14 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 34,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         letterSpacing: 2,
     },
     headerSubtitle: {
         fontSize: 10,
         letterSpacing: 4,
         marginTop: 2,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
     },
     progressRow: {
         width: "100%",
@@ -437,6 +443,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     progressText: {
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
         fontSize: 10,
         letterSpacing: 2,
     },
@@ -533,7 +540,7 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     lockedCenterText: {
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
         fontSize: 13,
         letterSpacing: 1,
         fontStyle: "italic",
@@ -570,8 +577,7 @@ const styles = StyleSheet.create({
     // Info
     modalName: {
         fontSize: 30,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
-        letterSpacing: 1.5,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         marginBottom: 16,
     },
     statsRow: {
@@ -590,11 +596,11 @@ const styles = StyleSheet.create({
         fontSize: 9,
         color: "#A89060",
         letterSpacing: 2,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
     },
     statValue: {
         fontSize: 14,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
     },
     section: {
         marginBottom: 20,
@@ -602,13 +608,14 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 11,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         letterSpacing: 3,
         textTransform: "uppercase",
     },
     sectionBody: {
         lineHeight: 22,
         fontSize: 14,
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
     },
     charList: {
         gap: 6,
@@ -620,6 +627,7 @@ const styles = StyleSheet.create({
     },
     charText: {
         fontSize: 13,
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
     },
     curiosityBox: {
         borderWidth: 1,
@@ -630,13 +638,13 @@ const styles = StyleSheet.create({
     },
     curiosityTitle: {
         fontSize: 11,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         letterSpacing: 2,
         textTransform: "uppercase",
     },
     lockedMessage: {
         color: "#A89060",
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         textAlign: "center",
         fontSize: 14,
         lineHeight: 22,
@@ -646,15 +654,21 @@ const styles = StyleSheet.create({
 
     // Fechar
     closeButton: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
         borderWidth: 1,
         borderRadius: 8,
-        paddingHorizontal: 24,
-        paddingVertical: 10,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
         marginTop: 8,
     },
-    closeText: {
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
-        fontSize: 13,
+     closeText: {
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
+        fontSize: 18,
         letterSpacing: 1.5,
+        color: APP_COLORS.text.primary
+        ,
     },
 })

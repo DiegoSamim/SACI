@@ -418,9 +418,8 @@ export default function Map() {
 
                     <Text
                         style={{
-                            fontFamily: TYPOGRAPHY.fontFamily.serif,
-                            fontSize: TYPOGRAPHY.fontSize.xl,
-                            fontWeight: "700",
+                            fontFamily: TYPOGRAPHY.fontFamily.xilosa,
+                            fontSize: 28,
                             color: APP_COLORS.text.primary,
                             letterSpacing: 1.5,
                             textAlign: "center",
@@ -431,7 +430,7 @@ export default function Map() {
 
                     <Text
                         style={{
-                            fontFamily: TYPOGRAPHY.fontFamily.serif,
+                            fontFamily: TYPOGRAPHY.fontFamily.xilosa,
                             fontSize: 11,
                             color: APP_COLORS.text.muted,
                             letterSpacing: 4,
@@ -483,8 +482,7 @@ export default function Map() {
                             textAlign: "center",
                             paddingHorizontal: 32,
                             fontSize: 12,
-                            fontStyle: "italic",
-                            fontFamily: TYPOGRAPHY.fontFamily.serif,
+                            fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
                             color: APP_COLORS.text.secondary,
                             opacity: 0.7,
                             letterSpacing: 0.3,

@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     },
     name: {
         fontSize: 22,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
         lineHeight: 26,
     },
     regionTag: {
@@ -237,12 +237,12 @@ const styles = StyleSheet.create({
     regionText: {
         fontSize: 9,
         letterSpacing: 2,
-        fontFamily: TYPOGRAPHY.fontFamily.serif,
+        fontFamily: TYPOGRAPHY.fontFamily.xilosa,
     },
     lockHint: {
         fontSize: 10,
         color: "#A89060",
-        fontStyle: "italic",
+        fontFamily: TYPOGRAPHY.fontFamily.cordelItalic,
     },
     imageSide: {
         width: 110,
