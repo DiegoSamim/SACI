@@ -47,23 +47,52 @@ function TypewriterText({
 }) {
   const [displayed, setDisplayed] = useState("")
   const indexRef = useRef(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const finishedRef = useRef(false)
+  const onDoneRef = useRef(onDone)
+
+  useEffect(() => {
+    onDoneRef.current = onDone
+  }, [onDone])
+
+  const revealAll = () => {
+    if (finishedRef.current) return
+    finishedRef.current = true
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+    indexRef.current = text.length
+    setDisplayed(text)
+    onDoneRef.current?.()
+  }
 
   useEffect(() => {
     setDisplayed("")
     indexRef.current = 0
-    const interval = setInterval(() => {
+    finishedRef.current = false
+
+    intervalRef.current = setInterval(() => {
       indexRef.current += 1
       setDisplayed(text.slice(0, indexRef.current))
       if (indexRef.current >= text.length) {
-        clearInterval(interval)
-        onDone?.()
+        revealAll()
       }
     }, speed)
 
-    return () => clearInterval(interval)
-  }, [text, speed, onDone])
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [text, speed])
 
-  return <Text style={style}>{displayed}</Text>
+  return (
+    <TouchableOpacity onPress={revealAll} activeOpacity={1}>
+      <Text style={style}>{displayed}</Text>
+    </TouchableOpacity>
+  )
 }
 
 function CluesModal({
@@ -123,6 +152,7 @@ export default function Dialogue() {
   const [narrativeDone, setNarrativeDone] = useState(false)
   const [showChoices, setShowChoices] = useState(false)
   const [showClues, setShowClues] = useState(false)
+  const narrativeScrollRef = useRef<ScrollView | null>(null)
 
   const progress = store.activeRegion
   const currentScene = store.getCurrentScene()
@@ -139,7 +169,7 @@ export default function Dialogue() {
     setShowChoices(false)
     choicesOpacity.value = 0
     choicesY.value = 20
-  }, [progress?.currentSceneId, choicesOpacity, choicesY])
+  }, [line?.id, line?.text, choicesOpacity, choicesY])
 
   useEffect(() => {
     if (!narrativeDone) return
@@ -196,6 +226,7 @@ export default function Dialogue() {
   }))
 
   const handleChoice = (choice: ChoiceOption) => {
+    setShowChoices(false)
     makeChoice(choice)
 
     const lineNavigation = choice.consequences.find(
@@ -263,12 +294,21 @@ export default function Dialogue() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(400).duration(500)} style={styles.narrativeBox}>
-          <TypewriterText
-            text={line.text}
-            speed={30}
-            style={[styles.narrativeText, { fontFamily: TYPOGRAPHY.fontFamily.cordelRegular }]}
-            onDone={() => setNarrativeDone(true)}
-          />
+          <ScrollView
+            ref={narrativeScrollRef}
+            style={styles.narrativeScroll}
+            contentContainerStyle={styles.narrativeScrollContent}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+            onContentSizeChange={() => narrativeScrollRef.current?.scrollToEnd({ animated: true })}
+          >
+            <TypewriterText
+              text={line.text}
+              speed={30}
+              style={[styles.narrativeText, { fontFamily: TYPOGRAPHY.fontFamily.cordelRegular }]}
+              onDone={() => setNarrativeDone(true)}
+            />
+          </ScrollView>
         </Animated.View>
 
         {showChoices && (
@@ -341,7 +381,9 @@ const styles = StyleSheet.create({
   scenarioImageLabel: { color: "#E8D0A0", fontFamily: "serif", fontSize: 18, opacity: 0.5, letterSpacing: 3 },
   imageBorderBottom: { flexDirection: "row", backgroundColor: "#1A0F06", justifyContent: "space-around", paddingHorizontal: 8, paddingBottom: 6 },
   borderTriangle: { width: 0, height: 0, borderLeftWidth: 10, borderRightWidth: 10, borderTopWidth: 14, borderLeftColor: "transparent", borderRightColor: "transparent", borderTopColor: APP_COLORS.background.base },
-  narrativeBox: { width: "100%", marginBottom: 8, paddingHorizontal: 4 },
+  narrativeBox: { width: "100%", marginBottom: 8, paddingHorizontal: 4, maxHeight: 190, minHeight: 118 },
+  narrativeScroll: { width: "100%" },
+  narrativeScrollContent: { paddingBottom: 2 },
   narrativeText: { fontSize: 17, lineHeight: 28, textAlign: "center", color: APP_COLORS.text.secondary, letterSpacing: 0.3 },
   questionText: { fontSize: 18, color: APP_COLORS.text.primary, textAlign: "center", marginBottom: 18, letterSpacing: 1 },
   choicesGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 10, width: "100%" },
