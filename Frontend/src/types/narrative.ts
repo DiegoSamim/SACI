@@ -3,6 +3,8 @@ export type ChoiceConsequence =
     | { type: "navigate"; sceneId: string } // navega para outra cena
     | { type: "game_over"; reason: GameOverReason } // termina o cenário com um motivo específico
     | { type: "add_clue"; clueId: string } // adiciona uma pista ao progresso do jogador
+    | { type: "add_condition"; condition: string } // adiciona uma condição customizada (ex: "falou_com_x") para desbloquear escolhas futuras
+    | { type: "remove_condition"; condition: string } // remove uma condição customizada (ex: resetar bloqueio de opção)
     | { type: "go_back" } // volta para a cena anterior
 
 export type GameOverReason =
@@ -11,6 +13,7 @@ export type GameOverReason =
     | "failed"        // jogador falhou em alguma ação
     | "catalogued"    // jogador catalogou a criatura (final bom)
 
+
 // ─── Escolha do jogador ───────────────────────────────────────────────────────
 export type ChoiceOption = {
     id: string
@@ -18,7 +21,8 @@ export type ChoiceOption = {
     consequences: ChoiceConsequence[]   // pode ter múltiplas consequências
     // ex: adicionar pista E navegar para próxima cena
     requiresClues?: string[]            // só aparece se o jogador tiver essas pistas
-    hidden?: boolean                    // escolha invisível até ser desbloqueada
+    requiresConditions?: string[]       // condições customizadas para mostrar a escolha (ex: ter falado com um NPC)
+    blockConditions?: string[]          // se alguma existir, a escolha fica bloqueada/escondida
 }
 
 // ─── Cena de narrativa ────────────────────────────────────────────────────────

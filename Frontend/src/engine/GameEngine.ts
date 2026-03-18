@@ -30,16 +30,14 @@ export function useGameEngine(regionId: RegionId, entrySceneId: string) {
   const scenes = REGION_SCENES[regionId] ?? {}
   const currentScene = scenes[progress.currentSceneId] as Scene | undefined
 
-  // Filtra choices pelo requiresClues + hidden
+  // Filtra choices pelo requiresClues
   const availableChoices = useCallback(
     (choices: ChoiceOption[]): ChoiceOption[] => {
       return choices.filter((choice) => {
         if (!choice.requiresClues || choice.requiresClues.length === 0) return true
-        const hasAll = choice.requiresClues.every((id) =>
+        return choice.requiresClues.every((id) =>
           progress.discoveredClues.includes(id)
         )
-        if (choice.hidden) return hasAll
-        return true // tem requiresClues mas não é hidden — aparece sempre, só habilita se tiver
       })
     },
     [progress.discoveredClues]

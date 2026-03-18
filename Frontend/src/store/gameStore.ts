@@ -222,6 +222,12 @@ export function useChoiceResolver() {
         case "add_clue":
           store.addClue(c.clueId)
           break
+        case "add_condition":
+          store.setFlag(c.condition, true)
+          break
+        case "remove_condition":
+          store.setFlag(c.condition, false)
+          break
         case "game_over":
           store.setOutcome(
             c.reason === "fled" ? "fled"
@@ -243,11 +249,26 @@ export function useChoiceResolver() {
 
   const availableChoices = (choices: ChoiceOption[]): ChoiceOption[] => {
     const clues = store.activeRegion?.discoveredClues ?? []
+    const flags = store.activeRegion?.flags ?? {}
+
     return choices.filter((choice) => {
-      if (!choice.requiresClues || choice.requiresClues.length === 0) return true
-      const hasAll = choice.requiresClues.every((id) => clues.includes(id))
-      if (choice.hidden) return hasAll
-      return true
+      const hasRequiredClues =
+        !choice.requiresClues ||
+        choice.requiresClues.length === 0 ||
+        choice.requiresClues.every((id) => clues.includes(id))
+
+      const hasRequiredConditions =
+        !choice.requiresConditions ||
+        choice.requiresConditions.length === 0 ||
+        choice.requiresConditions.every((condition) => !!flags[condition])
+
+      const hasBlockedConditions =
+        !!choice.blockConditions &&
+        choice.blockConditions.some((condition) => !!flags[condition])
+
+      const isUnlocked = hasRequiredClues && hasRequiredConditions && !hasBlockedConditions
+
+      return isUnlocked
     })
   }
 
