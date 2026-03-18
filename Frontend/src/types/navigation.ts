@@ -17,6 +17,9 @@ export type RootStackParamList = {
     scenarioName: string;
   }
   | undefined;
+  ComingSoonRegion: {
+    regionName: string;
+  };
   Battle: undefined;
   Inventory: undefined;
   GameOver: undefined;

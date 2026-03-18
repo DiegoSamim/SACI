@@ -6,6 +6,7 @@ import Menu from '../screens/Menu/index';
 import Scenario from '../screens/Scenario';
 import SplashScreen from '../screens/SplashScreen';
 import GameOver from '../screens/GameOver';
+import ComingSoonRegion from '../screens/ComingSoonRegion';
 import TabRoutes from './tab.routes';
 import { RootStackParamList } from '../types/navigation';
 
@@ -26,6 +27,7 @@ export default function StackRoutes() {
             <Stack.Screen name="Menu" component={Menu} />
             <Stack.Screen name="MainTabs" component={TabRoutes} />
             <Stack.Screen name="Scenario" component={Scenario} />
+            <Stack.Screen name="ComingSoonRegion" component={ComingSoonRegion} />
             <Stack.Screen name="Dialogue" component={Dialogue} />
             <Stack.Screen name="Battle" component={Battle} />
             <Stack.Screen name="Inventory" component={Inventory} />

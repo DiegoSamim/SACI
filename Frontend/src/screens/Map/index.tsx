@@ -378,10 +378,16 @@ export default function Map() {
         mapY.value = withTiming(offsetY, timingConfig)
 
         setTimeout(() => {
-            navigation.navigate("Scenario", {
-                regionName: region.regionName,
-                scenarioName: region.scenarioName,
-            })
+            if (region.key === "nordeste") {
+                navigation.navigate("Scenario", {
+                    regionName: region.regionName,
+                    scenarioName: region.scenarioName,
+                })
+            } else {
+                navigation.navigate("ComingSoonRegion", {
+                    regionName: region.regionName,
+                })
+            }
 
             setTimeout(() => {
                 mapScale.value = withSpring(1, { damping: 14, stiffness: 100 })
