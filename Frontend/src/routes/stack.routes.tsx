@@ -1,9 +1,11 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Battle from '../screens/Battle';
 import Inventory from '../screens/Inventory';
+import Dialogue from '../screens/Dialogue';
 import Menu from '../screens/Menu/index';
 import Scenario from '../screens/Scenario';
 import SplashScreen from '../screens/SplashScreen';
+import GameOver from '../screens/GameOver';
 import TabRoutes from './tab.routes';
 import { RootStackParamList } from '../types/navigation';
 
@@ -15,6 +17,7 @@ export default function StackRoutes() {
             initialRouteName={'Splash'}
             screenOptions={{
                 headerShown: false,
+                animation: 'fade',
                 contentStyle: {
                     backgroundColor: 'transparent',
                 },
@@ -23,8 +26,10 @@ export default function StackRoutes() {
             <Stack.Screen name="Menu" component={Menu} />
             <Stack.Screen name="MainTabs" component={TabRoutes} />
             <Stack.Screen name="Scenario" component={Scenario} />
+            <Stack.Screen name="Dialogue" component={Dialogue} />
             <Stack.Screen name="Battle" component={Battle} />
             <Stack.Screen name="Inventory" component={Inventory} />
+            <Stack.Screen name="GameOver" component={GameOver} />
         </Stack.Navigator>
     );
 }

@@ -26,6 +26,7 @@ import ScreenVignette from "../../components/ScreenVignette"
 import { APP_COLORS } from "../../constants/colors"
 import { TYPOGRAPHY } from "../../constants/typography"
 import { FOLKLORE_CREATURES } from "../../data/folkloreCreatures"
+import { useGameStore } from "../../store/gameStore"
 import CreatureCard from "@/components/creatureCards"
 import { ICONS } from "@/constants/icons"
 
@@ -308,8 +309,19 @@ function CreatureDetailModal({
 
 // ─── Tela principal ───────────────────────────────────────────────────────────
 export default function Catalog() {
+    const cataloguedCreatures = useGameStore((state) => state.cataloguedCreatures)
     const [selected, setSelected] = useState<any | null>(null)
-    const unlockedIds = ["boitata", 'cabra_cabriola', "curupira"] // Exemplo de IDs desbloqueados
+    const regionToCreatureId: Record<string, string> = {
+        nordeste: "cabra_cabriola",
+        norte: "curupira",
+        sudeste: "mula_sem_cabeca",
+        sul: "negrinho_do_pastoreio",
+        centro_oeste: "boitata",
+    }
+
+    const unlockedIds = cataloguedCreatures
+        .map((regionId) => regionToCreatureId[regionId])
+        .filter(Boolean)
 
     const total = FOLKLORE_CREATURES.length
     const unlocked = FOLKLORE_CREATURES.filter((c) => unlockedIds.includes(c.id)).length
@@ -396,7 +408,7 @@ export default function Catalog() {
             {selected && (
                 <CreatureDetailModal
                     creature={selected}
-                    locked={!unlockedIds.includes(selected.id)}
+                                locked={!unlockedIds.includes(selected.id)}
                     onClose={() => setSelected(null)}
                 />
             )}
