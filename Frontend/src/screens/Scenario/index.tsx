@@ -199,7 +199,7 @@ export default function Scenario() {
     // Reage ao outcome da engine
     useEffect(() => {
         if (progress?.outcome === "catalogued") {
-            navigation.navigate("MainTabs")
+            navigation.navigate("MainTabs", { screen: "Catalog" })
         }
         if (progress?.outcome === "fled") {
             navigation.navigate("MainTabs")

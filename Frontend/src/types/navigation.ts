@@ -1,3 +1,5 @@
+import { NavigatorScreenParams } from "@react-navigation/native";
+
 export type RootStackParamList = {
   Splash: undefined;
   Menu: {
@@ -5,7 +7,7 @@ export type RootStackParamList = {
     reason?: string;
     regionId?: string;
   };
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<MainTabParamList> | undefined;
   Dialogue: {
     npcId?: string;
     sceneId?: string;

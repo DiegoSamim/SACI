@@ -185,7 +185,7 @@ export default function Dialogue() {
 
   useEffect(() => {
     if (progress?.outcome === "catalogued") {
-      navigation.navigate("MainTabs")
+      navigation.navigate("MainTabs", { screen: "Catalog" })
     }
 
     if (progress?.outcome === "fled") {
