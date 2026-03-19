@@ -324,12 +324,12 @@ const SCENE_CONFRONTO_NOITE: ScenarioScene = {
         {
             id: "gritar_aviso",
             text: "Gritar pro Franciscleison: não abre!",
-            consequences: [{ type: "game_over", reason: "caught" }],
+            consequences: [{ type: "navigate", sceneId: "nordeste_confronto_noite_game_over1" }],
         },
         {
-            id: "hesitar_confronto",
-            text: "Aguardar a melhor oportunidade pra agir",
-            consequences: [{ type: "game_over", reason: "caught" }],
+            id: "enfrentar_criatura",
+            text: "Correr desesperado para a porta e tentar enfrentar a criatura",
+            consequences: [{ type: "navigate", sceneId: "nordeste_confronto_noite_game_over2" }],
         },
     ],
 }
@@ -352,7 +352,7 @@ const SCENE_CONFRONTO_SOLO: ScenarioScene = {
         {
             id: "nao_reza_solo",
             text: "Tentar enfrentar na força",
-            consequences: [{ type: "game_over", reason: "caught" }],
+            consequences: [{ type: "navigate", sceneId: "nordeste_confronto_solo_game_over" }],
         },
     ],
 }
@@ -404,6 +404,57 @@ const SCENE_CIDADE_GAME_OVER: ScenarioScene = {
             id: "game_over_final",
             text: "Fechar o bestiário",
             consequences: [{ type: "game_over", reason: "fled" }],
+        },
+    ],
+}
+
+const SCENE_CONFRONTO_SOLO_GAME_OVER: ScenarioScene = {
+    type: "scenario_scene",
+    id: "nordeste_confronto_solo_game_over",
+    regionId: "nordeste",
+    imageSource: require("../../assets/scenario/nordeste/nordeste_confronto_solo_game_over.png"),
+    narrativeText:
+        "Você tentou enfrentar a criatura sozinho, sem ajuda, sem preparação. Ela te pegou facilmente. O cheiro de enxofre é a última coisa que você sente enquanto é arrastado para o coração da caatinga.",
+    question: "...",
+    choices: [
+        {
+            id: "game_over_confronto_solo",
+            text: "...",
+            consequences: [{ type: "game_over", reason: "caught" }],
+        },
+    ],
+}
+
+const SCENE_CONFRONTO_NOITE_GAME_OVER1: ScenarioScene = {
+    type: "scenario_scene",
+    id: "nordeste_confronto_noite_game_over1",
+    regionId: "nordeste",
+    imageSource: require("../../assets/scenario/nordeste/nordeste_confronto_noite_game_over.png"),
+    narrativeText:
+        "Você gritou para Franciscleison não abrir a porta. A criatura grita em um desespero macabro e pula em você antes que possa reagir. O cheiro de enxofre é a última coisa que você sente enquanto é arrastado para o coração da caatinga.",
+    question: "...",
+    choices: [
+        {
+            id: "game_over_confronto_noite",
+            text: "...",
+            consequences: [{ type: "game_over", reason: "caught" }],
+        },
+    ],
+}
+
+const SCENE_CONFRONTO_NOITE_GAME_OVER2: ScenarioScene = {
+    type: "scenario_scene",
+    id: "nordeste_confronto_noite_game_over2",
+    regionId: "nordeste",
+    imageSource: require("../../assets/scenario/nordeste/nordeste_confronto_noite_game_over.png"),
+    narrativeText:
+        "Você correu desesperado e tentou enfrentar a criatura. A cabra saltou em você com uma força descomunal, te derrubando no chão. Antes que pudesse reagir, ela estava sobre você, arranhando seu rosto com os dentes afiados. O cheiro de enxofre é a última coisa que você sente enquanto é arrastado para o coração da caatinga.",
+    question: "...",
+    choices: [
+        {
+            id: "game_over_confronto_noite",
+            text: "...",
+            consequences: [{ type: "game_over", reason: "caught" }],
         },
     ],
 }
@@ -1935,6 +1986,9 @@ export const NORDESTE_SCENES: Record<string, Scene> = {
     nordeste_caatinga_pego: SCENE_CAATINGA_PEGO,
     nordeste_confronto_noite: SCENE_CONFRONTO_NOITE,
     nordeste_confronto_solo: SCENE_CONFRONTO_SOLO,
+    nordeste_confronto_solo_game_over: SCENE_CONFRONTO_SOLO_GAME_OVER,
+    nordeste_confronto_noite_game_over1: SCENE_CONFRONTO_NOITE_GAME_OVER1,
+    nordeste_confronto_noite_game_over2: SCENE_CONFRONTO_NOITE_GAME_OVER2,
     nordeste_catalogar_inicio: SCENE_CATALOGAR_INICIO,
     nordeste_catalogar: SCENE_CATALOGAR,
     nordeste_cidade_game_over: SCENE_CIDADE_GAME_OVER,

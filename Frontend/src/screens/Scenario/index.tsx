@@ -279,7 +279,7 @@ export default function Scenario() {
                             <Text style={styles.scenarioImageLabel}>{route.params?.scenarioName ?? ""}</Text>
                         </View>
                     )}
-                    
+
                 </Animated.View>
 
                 {/* Texto narrativo */}
@@ -367,7 +367,7 @@ export default function Scenario() {
 const styles = StyleSheet.create({
     scroll: { padding: 24, alignItems: "center" },
     regionTitle: { fontSize: 36, color: APP_COLORS.text.primary, textAlign: "center", letterSpacing: 2, marginBottom: 6 },
-    ornamentRow: { flexDirection: "row", alignItems: "center", width: "60%", gap: 8, marginBottom: 20 },
+    ornamentRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 20 },
     dividerLine: { flex: 1, height: 1, backgroundColor: APP_COLORS.text.primary, opacity: 0.25 },
     ornamentStar: { fontSize: 10, color: APP_COLORS.text.primary, opacity: 0.45 },
     scenarioImageWrapper: { width: "100%", marginBottom: 24, borderRadius: 4, overflow: "hidden", borderWidth: 2, borderColor: APP_COLORS.text.primary },
@@ -384,8 +384,8 @@ const styles = StyleSheet.create({
     narrativeScrollContent: { paddingBottom: 2 },
     narrativeText: { fontSize: 17, lineHeight: 28, textAlign: "center", color: APP_COLORS.text.secondary, letterSpacing: 0.3 },
     questionText: { fontSize: 18, color: APP_COLORS.text.primary, textAlign: "center", marginBottom: 18, letterSpacing: 1 },
-    choicesGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", gap: 10, width: "100%" },
-    choiceWrapper: { width: "48%" },
+    choicesGrid: { width: "100%", gap: 10 },
+    choiceWrapper: { width: "100%" },
     choiceButton: { backgroundColor: APP_COLORS.buttons.primary, borderRadius: 6, padding: 2, shadowColor: APP_COLORS.text.primary, shadowOffset: { width: 2, height: 3 }, shadowOpacity: 0.4, shadowRadius: 0, elevation: 4, minHeight: 72, justifyContent: "center" },
     choiceInnerBorder: { borderWidth: 1, borderColor: "rgba(237,225,196,0.15)", borderRadius: 4, paddingVertical: 14, paddingHorizontal: 12, alignItems: "center", justifyContent: "center", flex: 1 },
     choiceText: { color: "#EDE1C4", fontSize: 14, textAlign: "center", lineHeight: 20, letterSpacing: 0.5 },

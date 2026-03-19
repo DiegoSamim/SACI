@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "my-expo-app",
-    "slug": "my-expo-app",
+    "name": "saci",
+    "slug": "saci",
     "version": "1.0.0",
     "web": {
       "favicon": "./src/assets/LogoSaci.png"
@@ -28,9 +28,16 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.diego.saci",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/LogoSaci.png",
         "backgroundColor": "#ffffff"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "70f0612a-ded3-4669-bfbe-e539071a5cc1"
       }
     }
   }
