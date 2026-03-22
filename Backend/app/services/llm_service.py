@@ -21,6 +21,14 @@ class LLMService:
         region_id: str,
     ) -> NPCResponse:
         try:
+            print(
+                "[LLM][REQ] "
+                f"model={self.model} "
+                f"npc_id={npc_id} "
+                f"region_id={region_id} "
+                f"current_mood={current_mood.value}"
+            )
+
             completion = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
@@ -31,7 +39,19 @@ class LLMService:
                 max_tokens=300,
             )
             raw = completion.choices[0].message.content
-            return self._parse_response(raw, current_mood, npc_id, region_id)
+            print("[LLM][RAW] resposta bruta:")
+            print(raw)
+
+            parsed = self._parse_response(raw, current_mood, npc_id, region_id)
+            print(
+                "[LLM][PARSED] "
+                f"mood={parsed.resulting_mood.value} "
+                f"clues={parsed.revealed_clues} "
+                f"ends={parsed.ends_conversation}"
+            )
+            print(f"[LLM][PARSED] text={parsed.generated_text}")
+
+            return parsed
 
         except Exception as e:
             print(f"[LLM ERROR] {e}")
@@ -55,7 +75,7 @@ class LLMService:
         ends_match  = re.search(r'\[ENDS:(true|false)\]', raw)
 
         clean_text = re.sub(
-            r'\[MOOD:[^\]]+\]|\[CLUES:[^\]]+\]|\[ENDS:[^\]]+\]', '', raw
+            r'\[MOOD:[^\]]+\]|\[CLUES:[^\]]*\]|\[ENDS:[^\]]+\]', '', raw
         ).strip()
 
         # Humor
@@ -89,6 +109,12 @@ class LLMService:
         ends_conversation = False
         if ends_match:
             ends_conversation = ends_match.group(1).lower() == 'true'
+
+        print(
+            "[LLM][META] "
+            f"declared_clues={declared_clues} "
+            f"validated_clues={validated_clues}"
+        )
 
         return NPCResponse(
             generated_text=clean_text,

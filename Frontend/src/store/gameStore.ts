@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { RegionId, NPCMood, Scene } from "../types/narrative"
 import { NORDESTE_SCENES, NORDESTE_CLUES } from "../data/region/nordeste"
 import { Clue } from "../types/narrative"
+import { ConversationMessage } from "../types/api"
 
 type RegionOutcome = "catalogued" | "fled" | "failed" | "caught"
 
@@ -56,7 +57,18 @@ type GameStore = {
   getCurrentScene: () => Scene | null
   getClueObjects: () => Clue[]
   resetRegion: () => void
+
+  // Histórico por NPC — chave é o npcId
+  conversationHistories: Record<string, ConversationMessage[]>
+
+  // Ações novas
+  addConversationMessage: (npcId: string, msg: ConversationMessage) => void
+  getConversationHistory: (npcId: string) => ConversationMessage[]
+  clearConversationHistory: (npcId: string) => void
+
 }
+
+
 
 const getResumeSceneId = (regionId: RegionId, resume?: RegionResumeState) => {
   if (!resume) return `${regionId}_entrada`
@@ -71,6 +83,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   globalClues: [],
   regionResumeState: {},
   lastGameOver: null,
+  conversationHistories: {},
 
   // ── Inicia ou reinicia uma região ─────────────────────────────────────────
   startRegion: (regionId) => {
@@ -174,9 +187,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
             : state.cataloguedCreatures,
         regionResumeState: shouldResumeFromEnding
           ? {
-              ...state.regionResumeState,
-              [state.activeRegion.regionId]: { outcome: reason, reason },
-            }
+            ...state.regionResumeState,
+            [state.activeRegion.regionId]: { outcome: reason, reason },
+          }
           : state.regionResumeState,
         lastGameOver: { regionId: state.activeRegion.regionId, reason },
       }
@@ -200,6 +213,35 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // ── Reseta a região atual ─────────────────────────────────────────────────
   resetRegion: () => {
     set({ activeRegion: null })
+  },
+
+  addConversationMessage: (npcId, msg) => {
+    set((state) => {
+      const current = state.conversationHistories[npcId] ?? []
+
+      // Mantém máximo 20 mensagens por NPC
+      const updated = [...current, msg].slice(-20)
+
+      return {
+        conversationHistories: {
+          ...state.conversationHistories,
+          [npcId]: updated,
+        },
+      }
+    })
+  },
+
+  getConversationHistory: (npcId) => {
+    return get().conversationHistories[npcId] ?? []
+  },
+
+  clearConversationHistory: (npcId) => {
+    set((state) => ({
+      conversationHistories: {
+        ...state.conversationHistories,
+        [npcId]: [],
+      },
+    }))
   },
 }))
 
@@ -231,9 +273,9 @@ export function useChoiceResolver() {
         case "game_over":
           store.setOutcome(
             c.reason === "fled" ? "fled"
-            : c.reason === "caught" ? "caught"
-            : c.reason === "catalogued" ? "catalogued"
-            : "failed"
+              : c.reason === "caught" ? "caught"
+                : c.reason === "catalogued" ? "catalogued"
+                  : "failed"
           )
           break
         case "go_back":
