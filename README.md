@@ -4,21 +4,38 @@ Jogo narrativo interativo sobre o folclore brasileiro em estilo de cordel
 
 ## Sobre o Projeto
 
-SACI é um jogo mobile desenvolvido em React Native, inspirado no folclore brasileiro e na estética da literatura de cordel.
+SACI é um visual novel de investigação narrativa desenvolvido em React Native (Expo),
+inspirado no folclore brasileiro e na estética da literatura de cordel.
 
-A experiência gira em torno de decisões, interpretação e diálogo.. Cada escolha molda a narrativa, criando uma experiência dinâmica e imersiva por todos as regições do Brasil.
+A experiência gira em torno de decisões, interpretação e diálogo. Cada escolha molda a
+narrativa, criando uma experiência dinâmica e imersiva por todas as regiões do Brasil.
 
-O jogador investiga eventos misteriosos, conversa com NPCs e coleta pistas em busca de catalogar todo folclore brasileiro
+O jogador investiga eventos misteriosos, conversa com NPCs e coleta pistas em busca de
+catalogar todo folclore brasileiro.
 
-O grande diferencial do projeto será o uso de IA generativa, permitindo que NPCs reajam de forma contextual às escolhas do jogador.
+Nesta versão o jogo é **inteiramente offline e roteirizado**: sem backend, sem IA
+generativa, sem rede. O foco é a engine narrativa — escolhas, consequências e
+investigação. Essa direção fica registrada em [docs/FUTURE.md](docs/FUTURE.md) para
+uma versão futura.
 
 ## Estrutura do Projeto
 
 ```text
 SACI/
-  Backend/        # Reservado para API/servicos da IA
-  Frontend/       # Aplicativo Expo React Native
+  Frontend/       # Aplicativo Expo React Native — único componente desta versão
+  docs/           # Especificações dos subsistemas
 ```
+
+## 📐 Documentação Técnica
+
+O projeto segue um system design documentado. Antes de contribuir, leia:
+
+- **[SYSTEM_DESIGN.md](SYSTEM_DESIGN.md)** — arquitetura, camadas, contratos e roadmap
+- [CLAUDE.md](CLAUDE.md) — regras operacionais para agentes de IA
+- [docs/NARRATIVE.md](docs/NARRATIVE.md) — como escrever uma região
+- [docs/design/VISUAL.md](docs/design/VISUAL.md) — sistema visual cordel/xilogravura
+- [docs/design/MOTION.md](docs/design/MOTION.md) — animações e transições
+- [docs/design/AUDIO.md](docs/design/AUDIO.md) — sistema de som (especificação)
 
 ## 🎮 Conceito Central
 
@@ -39,14 +56,19 @@ O jogo é baseado em uma engine narrativa orientada a decisões:
 - Decisões erradas podem levar a finais ruins
 - Decisões corretas revelam a verdade da criatura
 
+Todo o diálogo dos NPCs é escrito à mão como conteúdo declarativo — sem geração em
+tempo real. O jogo é determinístico: a mesma sequência de escolhas sempre leva ao
+mesmo resultado.
+
 ## Exploração do Brasil
 
-O jogo é estruturado para que cada historia se passe em alguma região do Brasil, tendo atualmente um folclore para cara região.
+O jogo é estruturado para que cada história se passe em alguma região do Brasil, tendo
+atualmente um folclore para cada região.
 
-🐐 Nordeste 
-🌲 Norte 
-🔥 Centro-Oeste 
-🐎 Sudeste 
+🐐 Nordeste (completo — Cabra Cabriola)
+🌲 Norte
+🔥 Centro-Oeste
+🐎 Sudeste
 🌾 Sul
 
 Futuramente o objetivo é expandir cada região para ter:
@@ -54,16 +76,18 @@ Futuramente o objetivo é expandir cada região para ter:
 - Novas histórias
 - Novos NPCs
 - Novas mecânicas narrativas
-- Novos cenários 
+- Novos cenários
 
 ## 🎨 Estilo Visual
 
 Inspirado na cultura brasileira:
 
-- Imagens, icones e tipografia em cordel
+- Imagens, ícones e tipografia em cordel
 - Alto contraste (preto e bege)
 - Textura de papel envelhecido
 - Visual minimalista e simbólico
+
+Ver detalhamento em [docs/design/VISUAL.md](docs/design/VISUAL.md).
 
 ## 📖 FolcloreDex (Catálogo)
 
@@ -77,30 +101,9 @@ Cada entrada contém:
 - Comportamento
 - Relatos coletados
 
-## 🤖 Futuro: NPCs com IA Generativa
+## 🔊 Áudio e Imersão
 
-O projeto prevê integração com IA generativa, permitindo:
-
-- Respostas dinâmicas dos NPCs
-- Diálogos não roteirizados
-- Interpretação contextual das escolhas do jogador alterando o humor do npc
-- Descoberta orgânica de pistas
-
-## 🌪️ Futuro: O Papel do SACI
-
-O Saci como narrador e guia da jornada.
-
-Funções planejadas:
-
-- Introduzir regiões e histórias
-- Comentar decisões do jogador
-- Dar pistas indiretas
-- Provocar, confundir ou ajudar
-- Ele não é apenas um personagem...
-
-## 🔊 Futuro: Áudio e Imersão
-
-Planejado para evoluir com:
+Especificado (ainda não implementado) em [docs/design/AUDIO.md](docs/design/AUDIO.md):
 
 🎧 Trilha sonora regional
 🔊 Sons ambientes (vento, passos, vozes)
