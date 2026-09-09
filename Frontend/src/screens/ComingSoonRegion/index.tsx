@@ -1,21 +1,23 @@
-import React from "react"
-import { SafeAreaView } from "react-native-safe-area-context"
-import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from "react-native"
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native"
-import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { RootStackParamList } from "../../types/navigation"
-import { APP_COLORS } from "../../constants/colors"
-import { TYPOGRAPHY } from "../../constants/typography"
-import ScreenVignette from "../../components/ScreenVignette"
+import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../types/navigation';
+import { APP_COLORS } from '../../constants/colors';
+import { TYPOGRAPHY } from '../../constants/typography';
+import { REGION_LABELS } from '@/data/regions';
+import ScreenVignette from '../../components/ScreenVignette';
 
-type ComingSoonNavigationProp = NativeStackNavigationProp<RootStackParamList, "ComingSoonRegion">
-type ComingSoonRouteProp = RouteProp<RootStackParamList, "ComingSoonRegion">
+type ComingSoonNavigationProp = NativeStackNavigationProp<RootStackParamList, 'ComingSoonRegion'>;
+type ComingSoonRouteProp = RouteProp<RootStackParamList, 'ComingSoonRegion'>;
 
 export default function ComingSoonRegion() {
-  const navigation = useNavigation<ComingSoonNavigationProp>()
-  const route = useRoute<ComingSoonRouteProp>()
+  const navigation = useNavigation<ComingSoonNavigationProp>();
+  const route = useRoute<ComingSoonRouteProp>();
 
-  const regionName = route.params?.regionName ?? "Regiao"
+  // Nome de exibição vem do label, nunca da rota: a rota carrega o id canônico.
+  const regionName = REGION_LABELS[route.params.regionId] ?? 'Região';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,9 +25,15 @@ export default function ComingSoonRegion() {
       <ScreenVignette />
 
       <View style={styles.content}>
-        <Text style={[styles.kicker, { fontFamily: TYPOGRAPHY.fontFamily.cordelItalic }]}>Exploracao em andamento</Text>
-        <Text style={[styles.title, { fontFamily: TYPOGRAPHY.fontFamily.xilosa }]}>{regionName}</Text>
-        <Text style={[styles.subtitle, { fontFamily: TYPOGRAPHY.fontFamily.xilosa }]}>Em breve</Text>
+        <Text style={[styles.kicker, { fontFamily: TYPOGRAPHY.fontFamily.cordelItalic }]}>
+          Exploracao em andamento
+        </Text>
+        <Text style={[styles.title, { fontFamily: TYPOGRAPHY.fontFamily.xilosa }]}>
+          {regionName}
+        </Text>
+        <Text style={[styles.subtitle, { fontFamily: TYPOGRAPHY.fontFamily.xilosa }]}>
+          Em breve
+        </Text>
 
         <Text style={[styles.body, { fontFamily: TYPOGRAPHY.fontFamily.cordelRegular }]}>
           Esta regiao recebera novas lendas e misterios em uma proxima atualizacao.
@@ -34,13 +42,14 @@ export default function ComingSoonRegion() {
         <TouchableOpacity
           style={styles.button}
           activeOpacity={0.85}
-          onPress={() => navigation.navigate("MainTabs")}
-        >
-          <Text style={[styles.buttonText, { fontFamily: TYPOGRAPHY.fontFamily.cordelRegular }]}>Voltar ao mapa</Text>
+          onPress={() => navigation.navigate('MainTabs')}>
+          <Text style={[styles.buttonText, { fontFamily: TYPOGRAPHY.fontFamily.cordelRegular }]}>
+            Voltar ao mapa
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -50,8 +59,8 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 28,
     gap: 10,
   },
@@ -59,26 +68,26 @@ const styles = StyleSheet.create({
     color: APP_COLORS.text.muted,
     fontSize: 14,
     letterSpacing: 0.8,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
   },
   title: {
     color: APP_COLORS.text.primary,
     fontSize: 42,
     letterSpacing: 1.5,
-    textAlign: "center",
+    textAlign: 'center',
   },
   subtitle: {
     color: APP_COLORS.text.secondary,
     fontSize: 30,
     letterSpacing: 1.2,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: -2,
   },
   body: {
     color: APP_COLORS.text.secondary,
     fontSize: 16,
     lineHeight: 24,
-    textAlign: "center",
+    textAlign: 'center',
     maxWidth: 350,
     marginTop: 6,
   },
@@ -94,4 +103,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 1,
   },
-})
+});
