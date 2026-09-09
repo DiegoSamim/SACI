@@ -9,10 +9,7 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [
-      "expo-video",
-      "expo-font"
-    ],
+    "plugins": ["expo-video", "expo-font"],
     "orientation": "portrait",
     "icon": "./src/assets/LogoSaci.png",
     "userInterfaceStyle": "light",
@@ -21,9 +18,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
