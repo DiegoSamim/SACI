@@ -28,7 +28,12 @@ cd Frontend
 npm run dev            # expo start -c --tunnel
 npx tsc --noEmit       # checagem de tipos — rode antes de terminar
 npm run lint           # eslint + prettier
+npm test               # engine, store, persistência, validador — node puro
+npm run validate       # 20 checagens de conteúdo; --strict promove aviso a erro
 ```
+
+Exige **Node ≥ 22.18** — `npm test`/`npm run validate` rodam TypeScript direto
+via `scripts/node-loader.mjs`, sem build.
 
 ## Sempre
 
@@ -40,7 +45,8 @@ npm run lint           # eslint + prettier
   Nunca derive id de label com `toLowerCase()`/`replace()`.
 - **Conteúdo é dado.** História nova = arquivo em `src/data/`, não `if` em tela.
   Todo diálogo de NPC é escrito à mão — não há geração em tempo real nesta versão.
-- **Atualize o doc no mesmo commit** quando mudar um contrato (tipo, consequência, token).
+- **Atualize o doc no mesmo commit** quando mudar um contrato (tipo, efeito, namespace de qualidade).
+- **`npm run validate` limpo** ao tocar `src/data/regions/` — 20 checagens, ver [docs/NARRATIVE.md](docs/NARRATIVE.md) §8.
 - **`ScreenVignette` em toda tela.**
 
 ## Nunca
@@ -55,23 +61,32 @@ npm run lint           # eslint + prettier
 - Criar um quinto registro paralelo de cenas/pistas. Existe **um** `REGION_REGISTRY`.
 - Adicionar dependência sem justificar por que o que já existe não resolve.
 
-## Estado do repositório (2026-09-06)
+## Estado do repositório (2026-09-08 — pós-engine v2)
 
 Antes de propor trabalho novo, saiba o que está quebrado — detalhe em
 [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) §7:
 
-- 🔴 **Nada persiste** — fechar o app apaga o progresso (sem AsyncStorage ainda).
+- 🟢 Nenhum bloqueador. Persistência versionada (3 saves + progresso global),
+  engine pura testada, validador de conteúdo, todos fechados.
 - 🟡 NativeWind instalado e quase não usado; padrão é `StyleSheet` + tokens.
-- 🟡 `TypewriterText` e `CluesModal` duplicados entre `Scenario` e `Dialogue`.
-- 🟡 `engine/GameEngine.ts` e `routes/types.ts` são código morto e divergente.
-- 🟡 `go_back` marca a região como vencida.
-- 🟡 Zero testes.
-- 🟡 `Battle` é stub sem mecânica definida — decidir se existe nesta versão.
+- 🟡 Cores literais em telas **anteriores à v2** (as telas v2 não introduziram
+  literal novo — checado na etapa 8).
+- 🟡 Sem `theme/motion`: durações e easings hardcoded em cada arquivo.
+- 🟡 Acessibilidade pontual, não sistemática (`accessibilityRole`/`Label` só
+  onde as telas v2 tocaram).
+- 🟡 Nenhuma tela tem teste automatizado — sem `jest`/`@testing-library/react-native`.
+  A engine e o store têm 196 testes; o que falta é a fiação tela↔store.
+- 🟡 `@expo/vector-icons` em `Inventory` sem estar no `package.json`.
+- 🟡 `package.json` ainda se chama `my-expo-app`.
+- 🟡 Algumas telas leem `@/data/regions` direto (deveria passar por seletor de
+  store) — ver D10 em `SYSTEM_DESIGN.md` §7.3.
 
 ## Antes de dizer que terminou
 
 - [ ] `npx tsc --noEmit` limpo
 - [ ] `npm run lint` limpo
+- [ ] `npm test` limpo
+- [ ] `npm run validate` limpo, se a mudança tocou `src/data/regions/`
 - [ ] Nenhum literal de cor/fonte/duração/som em código de apresentação
 - [ ] Ids seguem [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) §4.1
 - [ ] Doc atualizado se um contrato mudou

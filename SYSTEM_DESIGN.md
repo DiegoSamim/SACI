@@ -4,7 +4,7 @@
 > contratos entre as camadas e quais regras qualquer pessoa — ou qualquer IA —
 > deve seguir ao trabalhar neste repositório.
 >
-> Última revisão: 2026-09-06
+> Última revisão: 2026-09-08 — engine narrativa v2
 
 ## Escopo desta versão
 
@@ -117,57 +117,69 @@ screens / components
 | Tokens | `src/theme/` | Cor, tipografia, espaço, motion, som | Qualquer lógica |
 | Contratos | `src/types/` | Tipos compartilhados | Qualquer implementação |
 
-### 3.1 Estrutura-alvo
+### 3.1 Estrutura real (v2)
 
 ```
 Frontend/src/
-  theme/
-    colors.ts          paleta cordel (papel, tinta, acentos regionais)
-    typography.ts      famílias, escala, tracking, line-height
-    spacing.ts         escala de espaçamento e raios
-    motion.ts          durações, easings, presets de transição
-    audio.ts           mapa de tokens de som
-    index.ts           export único: `theme`
   types/
-    narrative.ts       Scene, ChoiceOption, Clue, RegionId, NPCMood
-    navigation.ts      RootStackParamList, MainTabParamList
+    ids.ts, qualities.ts, conditions.ts, effects.ts,
+    scene.ts, ending.ts, region.ts, dex.ts, save.ts, events.ts
+                        contratos v2 — 100% type-only, zero runtime
+    narrative.ts        contratos v1, mantido só para o conteúdo v1 morto
+    navigation.ts        RootStackParamList, MainTabParamList
   data/
     regions/
-      index.ts         REGION_REGISTRY — fonte única de cenas e pistas
-      nordeste/
-        index.ts       exporta scenes + clues + meta da região
-        scenes.ts
-        dialogues.ts
-        clues.ts
-      norte/  sudeste/  sul/  centro-oeste/
-    creatures.ts       FolcloreDex
+      index.ts           REGION_REGISTRY — fonte única de conteúdo
+      nordeste/           qualities · scenes · dialogues · npcs · clues ·
+                          endings · dex · meta  (fatia vertical, provisória)
+    region/nordeste.ts    conteúdo v1, morto, preservado (§12 do prompt v2)
+    folkloreCreatures.ts  catálogo v1, ainda usado pelo card do Catalog
   engine/
-    resolveConsequences.ts
-    availableChoices.ts
-    resolveScene.ts
-  store/
-    gameStore.ts       partida ativa + progresso global
-    settingsStore.ts   áudio, motion reduzido, velocidade de texto
+    qualities · conditions · variants · choices · effects · scenes ·
+    endings · completion · dex · constants     — funções puras, zero React
   services/
-    audioService.ts    buses, ducking, playback
-    storage.ts         persistência versionada
+    storage.ts           persistência versionada, backend injetável
+    asyncStorageBackend.ts  único arquivo que importa AsyncStorage
+    eventBus.ts           barramento de EngineEvent
+  store/
+    runStore.ts           partida ativa (SaveSlot)
+    progressStore.ts      progresso global (GlobalProgress: dex + finaisVistos)
   components/
-    narrative/         TypewriterText, ChoiceList, ClueModal, NarrativeFrame
-    layout/            ScreenVignette, PaperSurface, CordelDivider
-    catalog/           CreatureCard
-    map/               MapCloudLayer, RegionPin
+    narrative/            TypewriterText, ChoiceList, CluesModal, sceneAssets
+    dev/                  DevInspector — só em __DEV__
+    layout/, catalog/, map/   como hoje
   screens/
+  scripts/
+    validate-content.ts, validate/rules.ts   validador — npm run validate
+    node-loader.mjs       resolve @/ e extensão implícita em node puro
 ```
+
+`theme/` continua sendo alvo, não realidade — os tokens vivem em `src/constants/`
+(dívida D1/D2, §7.3), fora do escopo desta frente.
 
 ### 3.2 Regras de import
 
-- Telas importam de `@/theme`, `@/components`, `@/store`, `@/types`. **Nunca** de `@/data` direto.
-- Resolver conteúdo é responsabilidade do store/engine, via `REGION_REGISTRY`.
+- Telas importam de `@/theme` (hoje `@/constants`), `@/components`, `@/store`,
+  `@/types`. Resolver conteúdo é responsabilidade do store/engine, via
+  `REGION_REGISTRY`.
+- **Desvio conhecido, registrado como dívida (D10, §7.3):** algumas telas leem
+  `REGION_REGISTRY`/`REGION_LABELS` de `@/data/regions` direto, para nome de
+  região e título de pista/NPC — não há hoje um seletor de store para isso. É
+  drift real desta regra, não uma reinterpretação dela.
+- `data/` nunca importa `require()` de imagem: quem resolve chave de asset em
+  pixel é a apresentação (`components/narrative/sceneAssets.ts`). É o que mantém
+  o conteúdo v2 carregável em node puro, para o validador e os testes.
 - Alias `@/*` → `src/*` já está configurado ([tsconfig.json](Frontend/tsconfig.json)). **Use sempre o alias**; caminhos relativos `../../` estão proibidos em código novo.
 
 ---
 
 ## 4. Contratos centrais
+
+A engine v2 é uma **máquina de estado narrativo**: todo estado é numérico e
+unificado, pistas selecionam variante de texto e efeito em vez de destravar
+opções, e finais são nomeados e resolvidos por condição. Contratos completos em
+[Frontend/src/types/](Frontend/src/types/); autoria de conteúdo em
+[docs/NARRATIVE.md](docs/NARRATIVE.md).
 
 ### 4.1 Identificadores
 
@@ -176,13 +188,13 @@ Ids são a API pública entre conteúdo e engine. Quebrar um id quebra saves.
 | Entidade | Formato | Exemplo |
 | --- | --- | --- |
 | `RegionId` | snake_case, fechado no tipo | `nordeste`, `centro_oeste` |
-| `sceneId` | `{regionId}_{slug}` | `nordeste_caatinga_dia` |
+| `sceneId` | `{regionId}_{slug}` | `nordeste_curral` |
 | `dialogueId` | `{regionId}_dialogo_{npcId}` | `nordeste_dialogo_raimundo` |
-| `lineId` | slug curto, único dentro do diálogo | `abertura`, `pergunta_cheiro` |
-| `clueId` | `{criatura}_{fato}` | `cabra_voz`, `cabra_reza` |
-| `npcId` | slug sem acento, minúsculo | `raimundo`, `conceicao` |
-| `flag` | snake_case, verbo no particípio | `dialogo_senhora_concluido` |
+| `lineId` | slug curto, único dentro do diálogo | `abertura`, `a_voz` |
+| `clueId` | slug curto, único no projeto, por convenção prefixado por um apelido curto da criatura | `cabra_voz`, `cabra_reza` |
+| `npcId` | slug sem acento, minúsculo, **único no projeto** | `raimundo`, `conceicao` |
 | `creatureId` | snake_case | `cabra_cabriola` |
+| `endingId` | `{regionId}_{slug}` | `nordeste_reza_na_soleira` |
 
 **Regra crítica:** `RegionId` é o identificador canônico e circula em **toda** a stack
 do frontend — rotas, store, engine e assets. Nomes de exibição ("Centro-Oeste",
@@ -190,87 +202,222 @@ do frontend — rotas, store, engine e assets. Nomes de exibição ("Centro-Oest
 um id de um label** com `toLowerCase()`/`replace()`. Rotas devem transportar
 `regionId`, não `regionName`.
 
+`npcId` e `clueId` são únicos **entre todas as regiões**, não só dentro de uma: os
+namespaces `humor.<npcId>` e `pista.<clueId>` (§4.3) não são prefixados por região, e
+dois ids iguais em regiões diferentes compartilhariam estado no mesmo save. A
+checagem 14 do validador (§13 de [docs/NARRATIVE.md](docs/NARRATIVE.md)) barra isso.
+
+`clueId` não é derivável de `creatureId` — ao contrário do que uma versão anterior
+deste documento dizia. `cabra_voz` é o padrão de fato, mas nada impõe o prefixo
+`cabra` além de convenção do autor; o validador confere só a forma.
+
 Assets seguem o mesmo id: `assets/scenario/{regionId}/{sceneId}.png`.
 
-### 4.2 Cena
+### 4.2 Estado: qualidades
 
-Duas formas, discriminadas por `type` (ver [types/narrative.ts](Frontend/src/types/narrative.ts)):
-
-- `scenario_scene` — cenário narrado, imagem + texto + escolhas.
-- `scenario_dialogue` — conversa com NPC, grafo de `lines` navegável por `lineId`.
-
-Uma cena **nunca** contém lógica. Só descreve o que existe e o que cada escolha causa.
-
-### 4.3 Consequências
-
-A engine conhece exatamente estes efeitos:
-
-| Consequência | Efeito |
-| --- | --- |
-| `navigate` | Muda a cena atual (ou a linha, se o id contiver `#`) |
-| `add_clue` | Registra pista na partida e no progresso global |
-| `add_condition` / `remove_condition` | Liga/desliga uma flag livre |
-| `game_over` | Encerra a região com um `GameOverReason` |
-| `go_back` | Volta para a cena anterior |
-
-**Adicionar um tipo novo de consequência é uma mudança de engine** e exige atualizar:
-`types/narrative.ts`, o resolver, este documento e [docs/NARRATIVE.md](docs/NARRATIVE.md).
-Nunca implemente um efeito novo dentro de uma tela.
-
-### 4.4 Gating de escolhas
-
-Uma escolha aparece se, e somente se:
-
-```
-todas as requiresClues foram descobertas
-E todas as requiresConditions estão ligadas
-E nenhuma blockConditions está ligada
-```
-
-Essa é a única regra de visibilidade. Não existe gating implícito em tela.
-
-### 4.5 Estado da partida
-
-`RegionState` é o save. Qualquer campo novo é **aditivo e opcional**, ou vem com
-migração explícita (§7.3).
+Substitui `discoveredClues` + `flags` + `npcMoods` do modelo v1. Tudo é um único
+mapa numérico:
 
 ```ts
-{
-  regionId, currentSceneId, previousSceneId,
-  discoveredClues: string[],
-  npcMoods: Record<npcId, NPCMood>,
-  visitedScenes: string[],
-  flags: Record<string, boolean>,
-  outcome: "playing" | "catalogued" | "fled" | "failed" | "caught",
+type Qualities = Record<string, number>
+```
+
+**Chave ausente vale `0`** — nunca existe `undefined` no estado. Sete namespaces
+obrigatórios ([types/qualities.ts](Frontend/src/types/qualities.ts)):
+
+| Prefixo | Uso | Prefixado por região? | Exemplo |
+| --- | --- | --- | --- |
+| `pista.` | conhecimento do investigador | não — `clueId` já é único | `pista.cabra_voz` |
+| `humor.` | humor de NPC, tipicamente -3..+3 | não — `npcId` já é único | `humor.raimundo` |
+| `laco.` | relação acumulada com NPC | não | `laco.raimundo` |
+| `mundo.` | estado da região | **sim** | `mundo.nordeste.ato` |
+| `feito.` | histórico de ações | **sim** | `feito.nordeste.fugiu` |
+| `visita.` | gerado pela engine ao entrar numa cena, nunca declarado | — | `visita.nordeste_curral` |
+| `meta.` | progresso entre regiões, derivado pela engine, nunca escrito por conteúdo | — | `meta.tag_bom` |
+
+`mundo.` e `feito.` levam o `regionId` no meio da chave porque um save atravessa as
+cinco regiões: sem o prefixo, `mundo.ato` de Nordeste colidiria com `mundo.ato` de
+Norte no mesmo save. `pista.`, `humor.` e `laco.` dispensam prefixo porque `clueId`
+e `npcId` já são únicos globalmente (§4.1).
+
+Cada qualidade é declarada num `QualityDef` por região, com `min`/`max` (a engine
+aplica `clamp` em todo `set` e `adjust`) e, para humor, `faixas` — intervalos que
+convertem número em palavra (`hostil`, `neutro`, `receptivo`...) sem espalhar `if`
+pela UI. Meta de autoria: ~15 chaves por região, fora `visita.` e `meta.`.
+
+### 4.3 Condição
+
+```ts
+type Predicate = { key: string; op: "gte" | "lte" | "eq" | "neq"; value: number }
+type Condition = { all?: Predicate[]; anyOf?: Predicate[][] }
+```
+
+`all` é AND; `anyOf` é OR de grupos AND; os dois juntos exigem que ambos passem.
+`undefined` ou objeto vazio é sempre verdadeiro. Deliberadamente raso — sem
+aninhamento além disso. Se um caso de roteiro exigir mais, o problema é de roteiro.
+
+### 4.4 Efeitos
+
+A engine conhece exatamente estes cinco
+([types/effects.ts](Frontend/src/types/effects.ts)):
+
+| Efeito | Ação |
+| --- | --- |
+| `set` | Grava um valor absoluto numa chave (com clamp) |
+| `adjust` | Soma/subtrai do valor atual (com clamp) |
+| `navigate` | Muda a cena atual, ou a linha, se `to` contiver `#` |
+| `end_region` | Encerra a região; sem `endingId`, a engine resolve por condição |
+| `emit` | Publica um evento customizado no barramento (§4.7), para o Saci consumir depois |
+
+`navigate` e `end_region` só podem ser o **último** efeito de um array — a checagem 7
+do validador rejeita o contrário. **`go_back` foi extinto**: voltar é uma escolha
+autorada, com `navigate` explícito e efeitos próprios (fecha a dívida C2, §7).
+
+**Adicionar um efeito novo é mudança de engine** e exige atualizar, no mesmo commit:
+`types/effects.ts`, `engine/effects.ts`, o validador e este documento. Nunca
+implemente um efeito novo dentro de uma tela.
+
+### 4.5 Cena e precedência de escolha
+
+Duas formas, discriminadas por `type`
+([types/scene.ts](Frontend/src/types/scene.ts)): `local` (cenário narrado) e
+`dialogo` (grafo de linhas navegável por `lineId`). Uma cena **nunca** contém
+lógica — só descreve o que existe e o que cada escolha causa.
+
+Cada bloco de texto é uma lista de `TextVariant`; a engine escolhe uma por
+desempate determinístico: maior `priority` → mais predicados na condição (mais
+específica ganha) → ordem de declaração. É assim que uma pista muda **o que o NPC
+diz**, não só o que fica visível.
+
+Uma escolha (`Choice`) tem três estados, em ordem de precedência —
+**oculta > travada > disponível**:
+
+- **Disponível** — padrão, deve ser a maioria esmagadora.
+- **Oculta** (`hiddenWhen`) — só quando exibir já entrega a revelação.
+- **Travada** (`lockedWhen`) — aparece, responde com `lockedText`, e **não altera
+  estado nenhum**. É o que ensina o sistema ao jogador: ele vê que existe caminho e
+  entende o que falta.
+
+`once` remove a escolha depois de usada. A chave de "já usada" é composta
+(`sceneId#choiceId`, ou `sceneId#lineId#choiceId` em diálogo) e **gerada pela
+engine** — nunca remontada por quem chama, porque foi exatamente esse recálculo
+que produziu um bug real na etapa 3 (uma escolha `once` reaparecendo).
+
+Toda `LocalScene` precisa de uma escolha sem `when`/`hiddenWhen`/`lockedWhen`/`once`
+(checagem 3). Todo diálogo declara `linhaDeDespedida`; se `availableChoices`
+devolver vazio, a engine injeta uma despedida automaticamente — rede de segurança,
+não substituto de saída autorada (checagem 4).
+
+### 4.6 Finais, epílogo e a ficha
+
+Uma região termina num `Ending` nomeado, não numa categoria fixa:
+
+```ts
+type Ending = { id, nome, tags: EndingTag[], when?, priority, texto, epilogo?: string[] }
+```
+
+`EndingTag` é `"bom" | "neutro" | "ruim" | "fuga"`, e um final pode ter mais de uma.
+Sem `endingId` explícito no `end_region`, a engine resolve pelo `Ending` de maior
+`priority` cuja condição passa; toda região tem **exatamente um** final sem `when`
+(fallback) e ao menos um com a tag `bom` (checagem 10).
+
+Cada slot listado em `ending.epilogo` resolve um `EpilogueFragment`, pelo mesmo
+mecanismo de prioridade; todo slot referenciado precisa de um fragmento sem `when`
+(checagem 11).
+
+**`fuga` é a única tag que não cataloga.** O FolcloreDex (`Catalog`) tem três
+seções por criatura: o *relato do investigador* (pistas descobertas, em ordem —
+varia por save), *o que ficou* (moral derivada das tags do final, via
+`MoralFragment` — varia por save) e *a lenda* (factual, fixa, nunca parcial). Um
+final `ruim` ainda cataloga, com relato incompleto — a completude cai sozinha
+porque menos pistas foram descobertas. `fuga` deixa a ficha marcada como não
+registrada, com explicação diegética.
+
+A ficha é global e **empilha registros**, não sobrescreve: duas investigações da
+mesma criatura com finais diferentes viram duas vozes discordando na mesma página,
+ordenadas por completude.
+
+### 4.7 Barramento de eventos
+
+```ts
+type EngineEvent =
+  | { type: "sceneEnter"; sceneId; primeiraVez }
+  | { type: "choiceTaken"; choiceId; sceneId }
+  | { type: "clueFound"; clueKey; ordem }
+  | { type: "moodChanged"; npcId; de; para }
+  | { type: "actAdvanced"; ato }
+  | { type: "endingReached"; endingId; tags }
+  | { type: "custom"; event; tag? }
+```
+
+A engine emite sem saber quem escuta ([services/eventBus.ts](Frontend/src/services/eventBus.ts)).
+É o gancho para o Saci — construído depois, numa área separada da tela. **Nenhuma
+lógica do Saci nesta versão**, só emissão e um subscriber vazio.
+
+### 4.8 Persistência
+
+Dois níveis, quatro chaves de storage:
+
+```ts
+type SaveSlot = {
+  version, slot: 1 | 2 | 3, criadoEm, atualizadoEm,
+  qualities: Qualities,
+  currentRegionId: RegionId | null, currentSceneId, currentLineId?,
+  takenChoices: string[], clueOrder: string[],
+  regioesConcluidas: Partial<Record<RegionId, { endingId; tags }>>,
+}
+
+type GlobalProgress = {
+  version, dex: Record<creatureId, DexEntry>, finaisVistos: string[],
+  ultimoSlotJogado?: 1 | 2 | 3,
 }
 ```
+
+`SaveSlot` é o save de uma partida — três por instalação, sem rejogar uma região já
+concluída no mesmo save. `GlobalProgress` atravessa saves: apagar um slot **não**
+apaga a ficha nem a galeria de finais vistos.
+
+`SaveSlot.regioesConcluidas` é a verdade estruturada sobre finais. Como `Condition`
+só lê números, a engine mantém um **espelho derivado** em `Qualities` —
+`meta.tag_bom`, `meta.tag_neutro`, `meta.tag_ruim`, `meta.tag_fuga`,
+`meta.regioes_concluidas` — incrementado só no `end_region`. Conteúdo nunca escreve
+ali (checagem 15); é o que o capítulo final do Saci vai avaliar, por composição de
+tags, não por portão binário.
+
+Migração é uma função por `version`, hoje vazia (v1 é a primeira). Save robusto: se
+`currentSceneId` não existir mais no conteúdo, volta ao início da região — nunca
+crash. Ver [services/storage.ts](Frontend/src/services/storage.ts).
+
+Autosave grava em quatro marcos: troca de cena, fim de região, app em background, e
+qualquer linha de diálogo que produza efeito — sem o último, o diálogo do NPC
+(onde mora a maior parte do humor e das pistas por conversa) ficaria sem gravar.
 
 ---
 
 ## 5. Investigação e consequências
 
-O núcleo de design desta versão. Três mecânicas compõem a investigação:
+O núcleo de design desta versão. Determinístico: dado o mesmo histórico de
+escolhas, o resultado é sempre o mesmo. Não há aleatoriedade, não há timer, não há
+combate resolvido por número — investigar é ler, cruzar informação e escolher.
 
-- **Pistas (`Clue`)** são o vocabulário de descoberta. Cada uma é um fato atômico
-  sobre a criatura da região, obtido explorando cenário ou conversando com um NPC
-  específico. Pistas nunca somem e se acumulam no progresso da região e no
-  progresso global (catálogo).
-- **Flags livres (`flags`)** registram história — o que o jogador já fez, não o que
-  já sabe. Usadas para não repetir conteúdo (`blockConditions`) e para desbloquear
-  falas que dependem de uma ação anterior, não de uma pista (`requiresConditions`).
-- **Consequências múltiplas por escolha.** Uma escolha pode, na mesma ação, revelar
-  uma pista, ligar uma flag e navegar — nessa ordem, para que o destino já veja o
-  efeito (ver [docs/NARRATIVE.md](docs/NARRATIVE.md) §3).
+- **Pistas** (`pista.<clueId>`) são o vocabulário de descoberta — um fato atômico
+  sobre a criatura, obtido explorando ou conversando. Uma pista indo de `0` para
+  `≠ 0` entra em `clueOrder`, preservando a ordem de descoberta, por `set` **ou**
+  `adjust`.
+- **Humor** (`humor.<npcId>`) e **laço** (`laco.<npcId>`) são as duas faces da
+  relação com um NPC: humor é volátil e move o que ele diz agora; laço acumula e
+  pode abrir caminhos que o humor sozinho não abre.
+- **Uma escolha pode disparar vários efeitos** — revelar pista, ajustar humor,
+  navegar — nessa ordem, para que o destino já veja o efeito.
+- **Uma variante de texto também carrega efeitos** (`TextVariant.effects`),
+  aplicados **ao entrar** na cena, não ao escolher: é como uma pista obtida por
+  exploração (olhar o cenário) chega ao estado sem esperar a próxima escolha.
 
-O jogo é inteiramente determinístico: dado o mesmo histórico de escolhas, o resultado
-é sempre o mesmo. Não há aleatoriedade, não há timer, não há combate resolvido por
-número — investigar é ler, cruzar informação e escolher, não gerenciar recursos.
-
-Regras de autoria completas — como garantir que toda região tem saída, todo final é
-alcançável e toda pista tem origem — estão em [docs/NARRATIVE.md](docs/NARRATIVE.md).
+Regras de autoria completas — saída garantida, alcançabilidade, pista com origem,
+o checklist terminando em `npm run validate` — estão em
+[docs/NARRATIVE.md](docs/NARRATIVE.md).
 
 ---
-
 ## 6. Subsistemas de design
 
 Cada um tem documento próprio com particularidades. Resumo dos contratos:
@@ -304,26 +451,22 @@ mantém a ordem de revelação de informação.
 
 ## 7. Estado atual e dívidas
 
-Levantamento real do repositório em 2026-09-06. **Trate como backlog priorizado.**
-Dívidas específicas de IA/Backend foram removidas daqui — ver
-[docs/FUTURE.md](docs/FUTURE.md).
+Levantamento real do repositório após a reescrita da engine (v2, etapas 1–8).
+**Trate como backlog priorizado.** Dívidas específicas de IA/Backend foram
+removidas daqui — ver [docs/FUTURE.md](docs/FUTURE.md).
 
 ### 7.1 Bloqueadores
 
-| # | Problema | Onde |
-| --- | --- | --- |
-| B1 | **Nada persiste.** Zustand puro em memória: fechar o app apaga todo o progresso. | `store/gameStore.ts` |
+**Nenhum.** B1 (nada persistia) está fechado — ver §7.4.
 
 ### 7.2 Correções de contrato
 
+**Todas fechadas** — C1 a C6 na reescrita da engine v2, C2 extinto junto com o
+`go_back` que o causava. C7 e C8 seguem abertos, fora do escopo desta frente
+(§12 do prompt de reescrita mandou não tocá-los):
+
 | # | Problema | Onde |
 | --- | --- | --- |
-| C1 | `regionName` do mapa (`"Suldeste"`, `"CentroOeste"`) é convertido em id por `toLowerCase().replace(" ","_")` e produz ids inválidos que não existem em `RegionId`. Rotas devem levar `regionId`. | `screens/Map`, `screens/Scenario` |
-| C2 | `go_back` seta `outcome: "catalogued"` — volta atrás é tratada como vitória. | `store/gameStore.ts` |
-| C3 | Registro de cenas/pistas duplicado em três lugares (`gameStore`, `GameEngine`, e `ALL_CLUES` recriado dentro de `Scenario` e `Dialogue`). Deve existir um `REGION_REGISTRY` único. | 4 arquivos |
-| C4 | Dois `RootStackParamList` conflitantes; `routes/types.ts` está obsoleto e diverge do real. | `routes/types.ts` |
-| C5 | `engine/GameEngine.ts` é código morto substituído pelo store, e ainda contém a versão antiga (e errada) das consequências. | `engine/GameEngine.ts` |
-| C6 | `getResumeSceneId` monta ids por concatenação (`${regionId}_catalogar`), assumindo que toda região terá exatamente essas cenas. Deve vir do meta da região. | `store/gameStore.ts` |
 | C7 | `@expo/vector-icons` é importado em `Inventory` sem estar declarado no `package.json`. | `screens/Inventory` |
 | C8 | `package.json` ainda se chama `my-expo-app`. | `Frontend/package.json` |
 
@@ -331,15 +474,24 @@ Dívidas específicas de IA/Backend foram removidas daqui — ver
 
 | # | Problema |
 | --- | --- |
-| D1 | **NativeWind instalado e praticamente não usado** (2 arquivos com `className`, 11 em `StyleSheet`). Decisão: **padronizar em `StyleSheet` + tokens**, migrar `Battle` e `Inventory`, e então remover `nativewind`/`tailwindcss` do projeto. Ter dois sistemas de estilo é a pior das opções. |
-| D2 | ~40 cores literais espalhadas por telas e componentes, incluindo uma paleta regional paralela (`REGION_ACCENT` em `creatureCards.tsx`) que **diverge** de `APP_COLORS.buttons.pin`. Consolidar em `theme/colors`. |
-| D3 | `TypewriterText` e `CluesModal` duplicados byte a byte entre `Scenario` e `Dialogue`. Extrair para `components/narrative/`. |
-| D4 | Durações e easings de animação hardcoded em cada arquivo. Extrair para `theme/motion`. |
+| D1 | **NativeWind instalado e praticamente não usado** (2 arquivos com `className`, 14 em `StyleSheet` — o número de `StyleSheet` cresceu com a reescrita, não diminuiu). Decisão pendente: padronizar em `StyleSheet` + tokens, migrar `Inventory`, remover `nativewind`/`tailwindcss`. |
+| D2 | Cores literais espalhadas por telas e componentes **anteriores à v2**, incluindo `REGION_ACCENT` em `creatureCards.tsx`, que diverge de `APP_COLORS.buttons.pin`. As telas reescritas na v2 (`Scenario`, `Dialogue`, `Ending`, `Menu`, `components/narrative/`, `components/dev/`) não introduziram literal novo — checado nesta revisão. |
+| D3 | **Parcialmente fechado.** `TypewriterText` e `CluesModal` foram extraídos para `components/narrative/` durante a etapa 6 — não porque a frente foi aberta de propósito, mas porque as duas telas que os duplicavam estavam sendo reescritas de qualquer forma, e manter a duplicação exigiria a mesma edição duas vezes. `ChoiceList` também foi extraído, novo. Segue aberto: nenhum outro componente do projeto foi auditado por duplicação. |
+| D4 | Durações e easings de animação hardcoded em cada arquivo, `theme/motion` inexistente. As telas v2 seguem o mesmo padrão das anteriores — não piorou nem melhorou. |
 | D5 | Zero áudio no jogo apesar de `expo-av` instalado (e depreciado). |
-| D6 | Sem acessibilidade sistemática: sem `reduce-motion`, sem controle de velocidade de texto, `accessibilityLabel` apenas pontual. |
-| D7 | Zero testes no projeto. |
-| D8 | `nordeste.ts` tem 1998 linhas em arquivo único — insustentável quando forem cinco regiões. |
-| D9 | `Battle` é uma tela stub sem mecânica definida. Decidir se "batalha" nesta versão é confronto narrativo (escolha sob pressão, sem número) ou se o conceito é removido do escopo. |
+| D6 | Sem acessibilidade sistemática: sem `reduce-motion`, sem controle de velocidade de texto. **Progresso pontual na v2:** `ChoiceList`, `DevInspector` e as telas reescritas usam `accessibilityRole`/`accessibilityLabel`/`accessibilityState` onde fazia sentido no que foi tocado — não é uma auditoria completa, e o restante do app segue sem cobertura sistemática. |
+| D7 | **Fechado.** Zero testes → 196 testes (`npm test`), cobrindo engine, store, persistência e validador. Não há teste de tela — ver D11. |
+| D8 | `nordeste.ts` (v1) continua com 2096 linhas em arquivo único, preservado morto por decisão explícita (§12 do prompt de reescrita: não gastar esforço convertendo-o). A fatia v2 já nasceu dividida em `data/regions/nordeste/{qualities,scenes,dialogues,npcs,clues,endings,dex,meta}.ts` — o padrão que a reescrita de conteúdo deve seguir. |
+| D9 | **Decidido: removido do escopo desta versão.** `Battle` foi apagado — confronto por número não existe nesta versão. O clímax é escolha sob pressão (`nordeste_noite` na fatia v2 é o padrão a seguir). Registrado em [docs/FUTURE.md](docs/FUTURE.md). |
+| D10 | **Novo.** Algumas telas (`Menu`, `Map`, `ComingSoonRegion`, `Catalog`/`DexRegistros`) importam `REGION_REGISTRY`/`REGION_LABELS` de `@/data/regions` direto, para nome de região e título de pista/NPC — violando a regra do §3.2 de que telas não leem `@/data` direto. Não há hoje um seletor de store que exponha isso; criar um (`useRegionLabel`, ou expor via `progressStore`) e migrar os quatro pontos. |
+| D11 | **Novo.** Nenhuma tela tem teste automatizado — não existe `@testing-library/react-native` nem `jest` no projeto, e instalá-los é frente própria. A mitigação estrutural é que as telas ficam finas e toda decisão vive no store (coberto pelos 196 testes); o que falta cobertura é a fiação tela↔store↔navegação. Verificação atual é manual: jogar os quatro finais e fechar/reabrir o app no meio de uma partida. |
+
+### 7.4 O que a reescrita da engine fechou
+
+Registrado aqui porque §9 exige nota de migração em mudança de contrato:
+**não havia save de jogador v1 a migrar.** O store v1 (`gameStore.ts`, apagado)
+era zustand puro em memória — fechar o app já apagava tudo antes desta reescrita.
+Nenhum progresso foi perdido porque nenhum progresso era salvo.
 
 ---
 
@@ -348,28 +500,31 @@ Dívidas específicas de IA/Backend foram removidas daqui — ver
 Fases em ordem de dependência. Não pule fase: cada uma remove um bloqueio da seguinte.
 Nenhuma fase envolve backend ou rede — ver [docs/FUTURE.md](docs/FUTURE.md).
 
-**Fase 1 — Fundação**
-`theme/` completo; `REGION_REGISTRY` único; corrigir C1–C8; extrair componentes
-narrativos duplicados (D3); decidir e executar D1; persistência versionada com
-AsyncStorage (B1).
+**Fase 1 — Fundação · concluída.** `REGION_REGISTRY` único; C1–C6 corrigidos;
+componentes narrativos extraídos (D3 parcial); persistência versionada (B1).
+`theme/` continua como alvo — D1/D2/D4 seguem abertos.
 
-**Fase 2 — Engine narrativa**
-Formalizar `engine/resolveConsequences`, `availableChoices` e `resolveScene` como
-funções puras testáveis; decidir o formato de "confronto" (D9); cobrir a engine com
-testes (D7) — é o coração determinístico do jogo e o lugar onde regressão dói mais.
+**Fase 2 — Engine narrativa · concluída.** `engine/` inteiro como funções puras
+testáveis (`applyEffects`, `availableChoices`/`resolveScene`/`resolveLine`,
+`resolveEnding`, `buildDexRecord`...); D9 decidido (confronto por número removido);
+D7 fechado — 196 testes, playthroughs de ponta a ponta como o mais valioso.
 
 **Fase 3 — Sistemas de experiência**
 Implementar `docs/design/AUDIO.md`; formalizar `docs/design/MOTION.md` em presets;
-transições de tela por semântica narrativa; acessibilidade (D6).
+transições de tela por semântica narrativa; acessibilidade sistemática (D6, hoje
+só pontual nas telas v2); `theme/` completo (D1, D2, D4).
 
 **Fase 4 — Expansão de conteúdo**
-Norte, Centro-Oeste, Sudeste e Sul seguindo [docs/NARRATIVE.md](docs/NARRATIVE.md).
-Se as fases 1–2 foram bem feitas, uma região nova é conteúdo puro — nenhuma linha de
-engine. Dividir `nordeste.ts` (D8) antes de replicar o padrão.
+Norte, Centro-Oeste, Sudeste e Sul seguindo [docs/NARRATIVE.md](docs/NARRATIVE.md)
+e o handoff de autoria (§9 daquele documento). A fatia vertical em
+`data/regions/nordeste/` é o padrão estrutural a seguir — já nasceu dividida, D8
+não se repete. `npm run validate` substitui a conferência manual do checklist.
+Reescrever o conteúdo de Nordeste sobre a mesma fatia, trocando o texto provisório.
 
 **Fase 5 — Polimento e lançamento**
 Revisão de todos os finais de todas as regiões; auditoria de acessibilidade completa;
-QA de ponta a ponta em dispositivo físico Android e iOS.
+teste de tela real (D11) se a superfície do app justificar o investimento; QA de
+ponta a ponta em dispositivo físico Android e iOS.
 
 Só depois da Fase 5, considerar qualquer item de [docs/FUTURE.md](docs/FUTURE.md).
 
@@ -377,14 +532,30 @@ Só depois da Fase 5, considerar qualquer item de [docs/FUTURE.md](docs/FUTURE.m
 
 ## 9. Qualidade
 
+**Comandos** (`Frontend/`):
+
+```bash
+npm run dev          # expo start -c --tunnel
+npx tsc --noEmit      # checagem de tipos
+npm run lint          # eslint + prettier
+npm test              # engine, store, persistência, validador — node puro
+npm run validate      # 20 checagens de conteúdo; --strict promove aviso a erro
+```
+
+Exige **Node ≥ 22.18** (`package.json` `engines`) — `npm test` e `npm run validate`
+rodam TypeScript direto via `scripts/node-loader.mjs`, sem build, e dependem de
+type-stripping habilitado por padrão.
+
 **Definição de pronto** para qualquer mudança:
 
-- `npx tsc --noEmit` limpo e `npm run lint` limpo (Frontend).
+- `npx tsc --noEmit`, `npm run lint`, `npm test` limpos.
+- `npm run validate` limpo se a mudança tocou conteúdo (`src/data/regions/`).
 - Zero cor, fonte, duração ou caminho de som literal em código de apresentação.
-- Conteúdo novo não introduziu `if` em tela.
+- Conteúdo novo não introduziu `if` em tela — nem em `screens/`, nem contornando
+  a engine.
 - Ids seguem §4.1.
-- Se mudou um contrato (tipo, consequência, token), este documento e o doc
-  específico foram atualizados **no mesmo commit**.
+- Se mudou um contrato (tipo, efeito, namespace de qualidade), este documento e
+  [docs/NARRATIVE.md](docs/NARRATIVE.md) foram atualizados **no mesmo commit**.
 - Caminho degradado testado quando a mudança envolve áudio ou animação.
 
 **Commits:** `tipo: descrição em português` — `feat`, `fix`, `docs`, `refactor`,

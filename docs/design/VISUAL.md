@@ -126,7 +126,7 @@ PNGs em par obrigatório: `Nome.png` (claro, para fundo escuro) e `NomeDark.png`
 dois mapas. Tamanho padrão 32×32, `resizeMode="contain"`.
 
 Não introduza biblioteca de ícones vetoriais: a assinatura xilográfica vem do traço
-irregular dos PNGs. (`@expo/vector-icons` em `Inventory` é um resquício a remover — C8.)
+irregular dos PNGs. (`@expo/vector-icons` em `Inventory` é um resquício a remover — C7.)
 
 ## 7. Imagens de cena
 
